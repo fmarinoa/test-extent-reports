@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'net.serenity-bdd.serenity-gradle-plugin' version '4.2.10'
+}
+
+group = 'org.framar'
+version = '1.0-SNAPSHOT'
+
+ext {
+    serenityVersion = '4.2.10'
+    seleniumVersion = '4.29.0'
+    junitVersion = '5.10.0'
+    junit4Version = '4.13.2'
+    cucumberVersion = '7.14.0'
+    log4jVersion = '2.22.1'
+    extentReportsVersion = '5.0.9'
+    extentAdapterVersion = '1.7.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform("org.junit:junit-bom:${junitVersion}")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // Selenium
+    implementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
+
+    // Serenity Core & Cucumber
+    implementation "net.serenity-bdd:serenity-screenplay:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-cucumber:${serenityVersion}"
+    testImplementation "net.serenity-bdd:serenity-junit:${serenityVersion}"
+
+    // JUnit 4 (Requerido para Serenity)
+    testImplementation "junit:junit:${junit4Version}"
+
+    // Cucumber JUnit
+    testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+
+    // Implementación Log4j con SLF4J
+    implementation "org.apache.logging.log4j:log4j-slf4j2-impl:${log4jVersion}"
+
+    // ExtentReports
+    implementation "tech.grasshopper:extentreports-cucumber7-adapter:${extentAdapterVersion}"
+    implementation "com.aventstack:extentreports:${extentReportsVersion}"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks.named("aggregate").configure {
+    enabled = false
+}
+
+tasks.register('cleanSerenityReports', Delete) {
+    delete file("target/site/serenity")
+}
+
+test {
+    useJUnit()
+    finalizedBy cleanSerenityReports
+}
